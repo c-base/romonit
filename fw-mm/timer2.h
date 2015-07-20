@@ -5,9 +5,6 @@
  *
  */
 
-#define F_CPU	4000000UL
-#define F_MCP	F_CPU
+extern volatile uint8_t sec;
 
-#define	LED		PG4
-#define	SW1		PF3
-
+void timer2_init(void);
