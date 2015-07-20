@@ -11,6 +11,6 @@ To use it you need to compile it and rewrite the eeprom on the FTDI-chip.
 After that, it's a normal USB-serial cable
 
 # fw-mm
-Contains a small firmware for romonit devices, which blink the LED once 
-and puts the AVR in powerdown mode. Current consuption is below 10uA.
+Contains a small firmware for romonit devices, which blinks the LED once 
+and puts the AVR in powerdown mode. Current consumption is below 10uA @3.3V.
 
