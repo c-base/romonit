@@ -17,6 +17,7 @@
 
 #include "board.h"
 #include "timer2.h"
+#include "lcd.h"
 
 int main (void) {
 
@@ -29,8 +30,8 @@ int main (void) {
 	// disable analog comparator (saves power)
 	ACSR = (1<<ACD);
 
-	// power reduction mode for LCD, timer1, SPI, UART and ADC
-	PRR = (1<<PRLCD)|(1<<PRTIM1)|(1<<PRSPI)|(1<<PRUSART0)|(1<<PRADC);
+	// power reduction mode for timer1, SPI, UART and ADC
+	PRR = (1<<PRTIM1)|(1<<PRSPI)|(1<<PRUSART0)|(1<<PRADC);
 
 	// disable Digital input on PF0-7 except PF3 (saves power)
 	DIDR0 = 0xF7;
@@ -43,18 +44,28 @@ int main (void) {
 	PORTG = 0x10;
 
 	timer2_init();
+	lcd_init();
 
 	sei();
 
+		LCDDR0 = 0xff;
+		LCDDR1 = 0x80;
+// 0x1 = C, 0x2 = bat low, 0x4 = bat med, 0x8 = %, 0x10 = window, 0x20 = heat, 0x40 = warn
+		LCDDR2 = 0x7f;
+		
+		LCDDR5 = 0xff;
+		LCDDR6 = 0x80;
+// 0x01 = REL,  0x02, bat high, 0x04 = bat border, 0x08 = seg3 _,  0x10 = ',', 0x20 = seg2 _, 0x40 = seg1 _
+		LCDDR7 = 0x7f;
+
 	while (1) {
 		// powersave mode, will never return until interrupt sources are available
+		// blink the LED for 10ms every wakeup
 		SMCR = (0<<SM2)|(1<<SM1)|(1<<SM0)|(1<<SE);
 		asm volatile ("sei");
 		asm volatile ("sleep");
 		asm volatile ("nop");
-		// blink the LED for 5ms every wakeup
-		PORTG = 0x00; _delay_ms(5); PORTG = 0x10;
+		PORTG = 0x00; _delay_ms(1); PORTG = 0x10;
 	}
 }
-
 

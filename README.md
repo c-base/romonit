@@ -12,5 +12,6 @@ After that, it's a normal USB-serial cable
 
 # fw-mm
 Contains a small firmware for romonit devices, which blinks the LED once 
-and puts the AVR in powerdown mode. Current consumption is below 10uA @3.3V.
+evet 8s, switces the LCD on and puts the AVR in powersave mode. Current
+consumption is around 20uA @3.3V.
 

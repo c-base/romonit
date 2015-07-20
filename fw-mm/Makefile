@@ -19,9 +19,9 @@ SRC = $(TARGET).c
 # uncomment the following:
 #SRC += lib/rfm12.c lib/crc.c lib/spi.c lib/ringbuffer.c lib/uart.c
 
-SRC += timer2.c
+SRC += timer2.c \
+	lcd.c
 #	sht15.c
-#	lcd.c \
 #	fonts.c \
 #	timer1.c \
 #	timer.c \
