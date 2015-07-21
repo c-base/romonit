@@ -5,7 +5,6 @@
  *
  */
 
-#define F_CPU	4000000UL
 #define F_MCP	F_CPU
 
 #define	LED		PG4

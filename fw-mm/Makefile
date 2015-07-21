@@ -57,7 +57,7 @@ EXTRAINCDIRS = ..
 #  -Wall...:  warning level
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #    -ahlms:  create assembler listing
-CFLAGS = -g -O$(OPT) -DF_CPU=4000000UL \
+CFLAGS = -g -O$(OPT) -DF_CPU=1000000UL \
 -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums \
 -Wall -Wstrict-prototypes \
 -Wa,-adhlns=$(<:.c=.lst) \
