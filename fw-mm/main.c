@@ -31,32 +31,23 @@ int main (void) {
 	ACSR = (1<<ACD);
 
 	// power reduction mode for timer1, SPI, UART and ADC
-	PRR = (1<<PRTIM1)|(1<<PRSPI)|(1<<PRUSART0)|(1<<PRADC);
-
-	// disable Digital input on PF0-7 except PF3 (saves power)
-	DIDR0 = 0xF7;
-	PORTF = 0x08;
+	PRR = (1<<PRLCD)|(1<<PRTIM1)|(1<<PRSPI)|(1<<PRUSART0)|(0<<PRADC);
 
 	// switch on the LED to test
 	DDRG  = 0x10;
-	PORTG = 0x00;
+	PORTG &= ~(1<<LED);
 	_delay_ms(100);
-	PORTG = 0x10;
+	PORTG |= (1<<LED);
+
+	// disable Digital input on PF0-7 except PF3 (saves power)
+	//DIDR0 = 0xF7;
+	// enable pullup on PF3
+	PORTF = (1<<SW1);
 
 	timer2_init();
-	lcd_init();
+	//lcd_init();
 
 	sei();
-
-		LCDDR0 = 0xff;
-		LCDDR1 = 0x80;
-// 0x1 = C, 0x2 = bat low, 0x4 = bat med, 0x8 = %, 0x10 = window, 0x20 = heat, 0x40 = warn
-		LCDDR2 = 0x7f;
-		
-		LCDDR5 = 0xff;
-		LCDDR6 = 0x80;
-// 0x01 = REL,  0x02, bat high, 0x04 = bat border, 0x08 = seg3 _,  0x10 = ',', 0x20 = seg2 _, 0x40 = seg1 _
-		LCDDR7 = 0x7f;
 
 	while (1) {
 		// powersave mode, will never return until interrupt sources are available
@@ -65,7 +56,14 @@ int main (void) {
 		asm volatile ("sei");
 		asm volatile ("sleep");
 		asm volatile ("nop");
-		PORTG = 0x00; _delay_ms(1); PORTG = 0x10;
+		if ( (sec%10) == 0) PORTG &= ~(1<<LED); _delay_ms(1); PORTG |= (1<<LED);
+		if ( (PINF & (1<<SW1)) > 0 ) {
+			PORTG |= (1<<LED);
+			lcd_off();
+		} else {
+			PORTG &= ~(1<<LED);
+			lcd_init();
+		}
 	}
 }
 
