@@ -57,16 +57,13 @@ void lcd_init(void) {
 
 	lcd_on();
 
-	#if 0
+	#if 1
 	// switch segments on
 	LCDDR0 = 0xff;
 	LCDDR1 = 0x80;
-	// 0x1 = C, 0x2 = bat low, 0x4 = bat med, 0x8 = %, 0x10 = window, 0x20 = heat, 0x40 = warn
 	LCDDR2 = 0x7f;
-
 	LCDDR5 = 0xff;
 	LCDDR6 = 0x80;
-	// 0x01 = REL,  0x02, bat high, 0x04 = bat border, 0x08 = seg3 _,  0x10 = ',', 0x20 = seg2 _, 0x40 = seg1 _
 	LCDDR7 = 0x7f;
 	#endif
 }

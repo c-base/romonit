@@ -48,7 +48,6 @@ int main (void) {
 	timer2_init();
 	lcd_init();
 	lcd_state = 1;
-	//lcd_off();
 
 	sei();
 
@@ -57,72 +56,73 @@ int main (void) {
 		// blink the LED for 10ms every wakeup
 		if ( (sec%10) == 0) led_on(); _delay_ms(1); led_off();
 		if ( button() ) {
-			if (lcd_state) {
-				lcd_off();
+			if (lcd_state)
 				lcd_state = 0;
-			} else {
-				lcd_on();
+			else
 				lcd_state = 1;
+		}
+		if (lcd_state) {
+			lcd_on();
+			#if 1
+			if (sec < 100 )
+				lcd.digits[0] = 10;
+			else
+				lcd.digits[0] = (uint8_t)((sec/100) % 10);
+	
+			if (sec < 10 )
+				lcd.digits[1] = 10;
+			else
+				lcd.digits[1] = (uint8_t)((sec/10) % 10);
+	
+			if ( sec == 0 )
+				lcd.digits[2] = 10;
+			else
+				lcd.digits[2] = (uint8_t)( sec%10 );
+	
+			lcd.bat = sec % 4;
+	
+			if ( sec % 10 == 0 ) {
+				lcd.bat_frame = 0;
+				lcd.window = 0;
+				lcd.thermometer = 0;
+				lcd.warning = 0;
+				lcd.percent = 0;
+				lcd.rel = 0;
+				lcd.comma = 0;
+				lcd.degrees = 0;
 			}
+	
+			if (sec % 10 == 1)
+				lcd.bat_frame = 1;
+	
+			if (sec % 10 == 2)
+				lcd.degrees = 1;
+	
+			if ( sec % 10 == 3)
+				lcd.rel = 1;
+	
+			if ( sec % 10 == 4)
+				lcd.percent = 1;
+	
+			if ( sec % 10 == 5)
+				lcd.window = 1;
+	
+			if ( sec % 10 == 6)
+				lcd.thermometer = 1;
+	
+			if ( sec % 10 == 7)
+				lcd.warning = 1;
+	
+			if (sec % 10 == 8)
+				lcd.comma = 1;
+	
+			#else
+			lcd.digits[0] = 1; lcd.digits[1] = 2; lcd.digits[2] = 3;
+			#endif
+	
+			lcd_update();
+			} else
+				lcd_off();
 		}
-		#if 1
-		if (sec < 100 )
-			lcd.digits[0] = 10;
-		else
-			lcd.digits[0] = (uint8_t)((sec/100) % 10);
-
-		if (sec < 10 )
-			lcd.digits[1] = 10;
-		else
-			lcd.digits[1] = (uint8_t)((sec/10) % 10);
-
-		if ( sec == 0 )
-			lcd.digits[2] = 10;
-		else
-			lcd.digits[2] = (uint8_t)( sec%10 );
-
-		lcd.bat = sec % 4;
-
-		if ( sec % 10 == 0 ) {
-			lcd.bat_frame = 0;
-			lcd.window = 0;
-			lcd.thermometer = 0;
-			lcd.warning = 0;
-			lcd.percent = 0;
-			lcd.rel = 0;
-			lcd.comma = 0;
-			lcd.degrees = 0;
-		}
-
-		if (sec % 10 == 1)
-			lcd.bat_frame = 1;
-
-		if (sec % 10 == 2)
-			lcd.degrees = 1;
-
-		if ( sec % 10 == 3)
-			lcd.rel = 1;
-
-		if ( sec % 10 == 4)
-			lcd.percent = 1;
-
-		if ( sec % 10 == 5)
-			lcd.window = 1;
-
-		if ( sec % 10 == 6)
-			lcd.thermometer = 1;
-
-		if ( sec % 10 == 7)
-			lcd.warning = 1;
-
-		if (sec % 10 == 8)
-			lcd.comma = 1;
-
-		#else
-		lcd.digits[0] = 1; lcd.digits[1] = 2; lcd.digits[2] = 3;
-		#endif
-
-		lcd_update();
-	}
 }
 
