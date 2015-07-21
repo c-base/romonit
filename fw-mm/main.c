@@ -34,17 +34,8 @@ int main (void) {
 	// power reduction mode for timer1, SPI, UART and ADC
 	PRR = (1<<PRLCD)|(1<<PRTIM1)|(1<<PRSPI)|(1<<PRUSART0)|(0<<PRADC);
 
-	// switch on the LED to test
-	DDRG  = 0x10;
-	PORTG &= ~(1<<LED);
-	_delay_ms(100);
-	PORTG |= (1<<LED);
-
-	// disable Digital input on PF0-7 except PF3 (saves power)
-	//DIDR0 = 0xF7;
-	// enable pullup on PF3
-	PORTF = (1<<SW1);
-
+	led_init();
+	led_on(); _delay_ms(100); led_off();
 	timer2_init();
 	lcd_init();
 	lcd_off();
@@ -58,7 +49,7 @@ int main (void) {
 		asm volatile ("sei");
 		asm volatile ("sleep");
 		asm volatile ("nop");
-		if ( (sec%10) == 0) PORTG &= ~(1<<LED); _delay_ms(1); PORTG |= (1<<LED);
+		if ( (sec%10) == 0) led_on(); _delay_ms(1); led_off();
 		if ( (PINF & (1<<SW1)) == 0 ) {
 			if (lcd) {
 				lcd_off();
