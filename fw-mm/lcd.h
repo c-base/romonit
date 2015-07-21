@@ -7,4 +7,6 @@
 
 void lcd_init(void);
 void lcd_off(void);
+void lcd_on(void);
+void lcd_seg(uint8_t);
 
