@@ -40,6 +40,18 @@ int main (void) {
 	// disable analog comparator (saves power)
 	ACSR = (1<<ACD);
 
+	// disable digital buffers on analog comparator
+	DIDR1 = 0x03;
+
+	// switch on pullups according to data sheet
+	PORTA=0x0c;
+	PORTB=0x01;
+	////PORTC=0xff;
+	////PORTD=0xff;
+	PORTE=0xff;
+	PORTF=0xff;
+	PORTG=0x36;
+
 	// power reduction mode for timer1, SPI, UART and ADC
 	PRR = (1<<PRLCD)|(1<<PRTIM1)|(1<<PRSPI)|(1<<PRUSART0)|(0<<PRADC);
 

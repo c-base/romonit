@@ -29,7 +29,7 @@ uint8_t button(void) {
 		ret = 1;
 
 	// turn off pullup again
-	PORTF &= ~(1<<SW1);
+	//PORTF &= ~(1<<SW1);
 	// turn off digital input
 	DIDR0 |= (1<<SW1);
 
