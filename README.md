@@ -7,8 +7,10 @@ Some more info is here:
 http://www.conrad.de/ce/de/product/108020/Romonit-econom-climat-Datenlogger-Messschreiber-5-bis-35-C
 
 # ft232r_prog-1.24
-Is a tool to reflash the product id of the romonit FDTI-cables. 
+Is a tool from Mark Lord to reflash the product id of the romonit FDTI-cables.
 To use it you need to compile it and rewrite the eeprom on the FTDI-chip.
+
+http://rtr.ca/ft232r/
 
 - sudo aptitude install libftdi-dev
 - make
