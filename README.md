@@ -17,7 +17,10 @@ To use it you need to compile it and rewrite the eeprom on the FTDI-chip.
 After that, it's a normal USB-serial cable
 
 # fw-mm
-Contains a small firmware for romonit devices, which blinks the LED once 
-every 5s and puts the AVR in powersave mode. Current consumption is around 20uA
-@3.3V. Pressing the button turns on the LCD and LED.
+Contains a small firmware for romonit devices to test the components.
+What works:
+- LCD
+- 32kHz timer
+- LED
+- Button
 
