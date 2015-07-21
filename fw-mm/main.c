@@ -20,8 +20,16 @@
 #include "lcd.h"
 #include "button.h"
 
+void sleep(void) {
+	// powersave mode, will never return until interrupt sources are available
+	SMCR = (0<<SM2)|(1<<SM1)|(1<<SM0)|(1<<SE);
+	asm volatile ("sei");
+	asm volatile ("sleep");
+	asm volatile ("nop");
+}
+
 int main (void) {
-	uint8_t lcd = 0;
+	uint8_t lcd_state = 0;
 
 	_delay_ms(1);			// wait some time for things to settle
 
@@ -39,28 +47,82 @@ int main (void) {
 	led_on(); _delay_ms(100); led_off();
 	timer2_init();
 	lcd_init();
-	lcd_off();
+	lcd_state = 1;
+	//lcd_off();
 
 	sei();
 
 	while (1) {
-		// powersave mode, will never return until interrupt sources are available
+		sleep();
 		// blink the LED for 10ms every wakeup
-		SMCR = (0<<SM2)|(1<<SM1)|(1<<SM0)|(1<<SE);
-		asm volatile ("sei");
-		asm volatile ("sleep");
-		asm volatile ("nop");
 		if ( (sec%10) == 0) led_on(); _delay_ms(1); led_off();
-		if ( button() == 1 ) {
-			if (lcd == 1) {
+		if ( button() ) {
+			if (lcd_state) {
 				lcd_off();
-				lcd = 0;
+				lcd_state = 0;
 			} else {
 				lcd_on();
-				lcd = 1;
+				lcd_state = 1;
 			}
 		}
-		lcd_seg(sec%32);
+		#if 1
+		if (sec < 100 )
+			lcd.digits[0] = 10;
+		else
+			lcd.digits[0] = (uint8_t)((sec/100) % 10);
+
+		if (sec < 10 )
+			lcd.digits[1] = 10;
+		else
+			lcd.digits[1] = (uint8_t)((sec/10) % 10);
+
+		if ( sec == 0 )
+			lcd.digits[2] = 10;
+		else
+			lcd.digits[2] = (uint8_t)( sec%10 );
+
+		lcd.bat = sec % 4;
+
+		if ( sec % 10 == 0 ) {
+			lcd.bat_frame = 0;
+			lcd.window = 0;
+			lcd.thermometer = 0;
+			lcd.warning = 0;
+			lcd.percent = 0;
+			lcd.rel = 0;
+			lcd.comma = 0;
+			lcd.degrees = 0;
+		}
+
+		if (sec % 10 == 1)
+			lcd.bat_frame = 1;
+
+		if (sec % 10 == 2)
+			lcd.degrees = 1;
+
+		if ( sec % 10 == 3)
+			lcd.rel = 1;
+
+		if ( sec % 10 == 4)
+			lcd.percent = 1;
+
+		if ( sec % 10 == 5)
+			lcd.window = 1;
+
+		if ( sec % 10 == 6)
+			lcd.thermometer = 1;
+
+		if ( sec % 10 == 7)
+			lcd.warning = 1;
+
+		if (sec % 10 == 8)
+			lcd.comma = 1;
+
+		#else
+		lcd.digits[0] = 1; lcd.digits[1] = 2; lcd.digits[2] = 3;
+		#endif
+
+		lcd_update();
 	}
 }
 
