@@ -10,3 +10,7 @@
 #define	LED		PG4
 #define	SW1		PF3
 
+#define led_on()		(PORTG &= ~(1<<LED))
+#define led_off()		(PORTG |= (1<<LED))
+#define led_init()		(DDRG  |= (1<<LED))
+
