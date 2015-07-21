@@ -20,12 +20,13 @@
 #include "lcd.h"
 
 int main (void) {
+	uint8_t lcd = 0;
 
 	_delay_ms(1);			// wait some time for things to settle
 
 	// set clock to 4 Mhz
-	CLKPR = (1<<CLKPCE);	// prescaler change enable
-	CLKPR = (1<<CLKPS0);	// prescaler = 2 (internal RC runs @ 8MHz)
+	//CLKPR = (1<<CLKPCE);	// prescaler change enable
+	//CLKPR = (1<<CLKPS0);	// prescaler = 2 (internal RC runs @ 8MHz)
 
 	// disable analog comparator (saves power)
 	ACSR = (1<<ACD);
@@ -45,7 +46,8 @@ int main (void) {
 	PORTF = (1<<SW1);
 
 	timer2_init();
-	//lcd_init();
+	lcd_init();
+	lcd_off();
 
 	sei();
 
@@ -57,13 +59,16 @@ int main (void) {
 		asm volatile ("sleep");
 		asm volatile ("nop");
 		if ( (sec%10) == 0) PORTG &= ~(1<<LED); _delay_ms(1); PORTG |= (1<<LED);
-		if ( (PINF & (1<<SW1)) > 0 ) {
-			PORTG |= (1<<LED);
-			lcd_off();
-		} else {
-			PORTG &= ~(1<<LED);
-			lcd_init();
+		if ( (PINF & (1<<SW1)) == 0 ) {
+			if (lcd) {
+				lcd_off();
+				lcd = 0;
+			} else {
+				lcd_on();
+				lcd = 1;
+			}
 		}
+		lcd_seg(sec%32);
 	}
 }
 
