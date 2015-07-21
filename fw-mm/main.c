@@ -18,6 +18,7 @@
 #include "board.h"
 #include "timer2.h"
 #include "lcd.h"
+#include "button.h"
 
 int main (void) {
 	uint8_t lcd = 0;
@@ -50,8 +51,8 @@ int main (void) {
 		asm volatile ("sleep");
 		asm volatile ("nop");
 		if ( (sec%10) == 0) led_on(); _delay_ms(1); led_off();
-		if ( (PINF & (1<<SW1)) == 0 ) {
-			if (lcd) {
+		if ( button() == 1 ) {
+			if (lcd == 1) {
 				lcd_off();
 				lcd = 0;
 			} else {

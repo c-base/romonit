@@ -20,7 +20,8 @@ SRC = $(TARGET).c
 #SRC += lib/rfm12.c lib/crc.c lib/spi.c lib/ringbuffer.c lib/uart.c
 
 SRC += timer2.c \
-	lcd.c
+	lcd.c \
+	button.c
 #	sht15.c
 #	fonts.c \
 #	timer1.c \
