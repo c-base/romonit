@@ -41,7 +41,7 @@ void lcd_on(void) {
 	// clear LCD from powersave register
 	PRR &= ~(1<<PRLCD);
 	// low power driving waveform
-	LCDCRA = (1<<LCDEN) | (1<<LCDAB) | (0<<LCDIE) | (1<<LCDBD) | (0<<LCDCCD);
+	LCDCRA = (1<<LCDEN) | (1<<LCDAB) | (0<<LCDIE) | (1<<LCDBD) | (1<<LCDCCD);
 }
 
 void lcd_init(void) {
@@ -51,9 +51,9 @@ void lcd_init(void) {
 	// LCD Control and Status Register B
 	LCDCRB = (1<<LCDCS)|(0<<LCD2B)|(0<<LCDMUX1)|(1<<LCDMUX0)|(1<<LCDPM2)|(0<<LCDPM1)|(1<<LCDPM0);
 	// frame rate
-	LCDFRR = ((0<<LCDPS2)|(0<<LCDPS1)|(0<<LCDPS0)|(0<<LCDCD2)|(0<<LCDCD1)|(1<<LCDCD0));
+	LCDFRR = ((0<<LCDPS2)|(0<<LCDPS1)|(0<<LCDPS0)|(0<<LCDCD2)|(1<<LCDCD1)|(0<<LCDCD0));
 	// set contrast
-	LCDCCR = ((0<<LCDDC2)|(0<<LCDDC1)|(1<<LCDDC0)) + 15;
+	LCDCCR = ((0<<LCDDC2)|(0<<LCDDC1)|(0<<LCDDC0)) + 0;
 
 	lcd_on();
 

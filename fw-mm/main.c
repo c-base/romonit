@@ -21,11 +21,6 @@
 #include "button.h"
 #include "sht1x.h"
 
-//#define sht_init sht11_init
-//#define sht_start sht11_start_temp
-//#define sht_get_tmp sht11_get_tmp
-//#define sht_get_hum sht11_get_hum
-
 void sleep(void) {
 	// powersave mode, will never return unless interrupt sources are available
 	SMCR = (0<<SM2)|(1<<SM1)|(1<<SM0)|(1<<SE);
