@@ -19,9 +19,15 @@
 #include "timer2.h"
 #include "lcd.h"
 #include "button.h"
+#include "sht1x.h"
+
+//#define sht_init sht11_init
+//#define sht_start sht11_start_temp
+//#define sht_get_tmp sht11_get_tmp
+//#define sht_get_hum sht11_get_hum
 
 void sleep(void) {
-	// powersave mode, will never return until interrupt sources are available
+	// powersave mode, will never return unless interrupt sources are available
 	SMCR = (0<<SM2)|(1<<SM1)|(1<<SM0)|(1<<SE);
 	asm volatile ("sei");
 	asm volatile ("sleep");
@@ -48,93 +54,65 @@ int main (void) {
 	PORTB=0x01;
 	////PORTC=0xff;
 	////PORTD=0xff;
-	PORTE=0xff;
+	PORTE=0x3f;
 	PORTF=0xff;
 	PORTG=0x36;
 
 	// power reduction mode for timer1, SPI, UART and ADC
-	PRR = (1<<PRLCD)|(1<<PRTIM1)|(1<<PRSPI)|(1<<PRUSART0)|(0<<PRADC);
+	PRR = (1<<PRLCD)|(1<<PRTIM1)|(1<<PRSPI)|(1<<PRUSART0)|(1<<PRADC);
 
 	led_init();
 	led_on(); _delay_ms(100); led_off();
 	timer2_init();
-	lcd_init();
+	sht_init();
 	lcd_state = 1;
-
+	update_bat();
 	sei();
+	lcd_init();
+	sht_start();
 
 	while (1) {
 		sleep();
-		// blink the LED for 10ms every wakeup
-		if ( (sec%10) == 0) led_on(); _delay_ms(1); led_off();
 		if ( button() ) {
-			if (lcd_state)
+			if (lcd_state) {
 				lcd_state = 0;
-			else
-				lcd_state = 1;
-		}
-		if (lcd_state) {
-			lcd_on();
-			#if 1
-			if (sec < 100 )
-				lcd.digits[0] = 10;
-			else
-				lcd.digits[0] = (uint8_t)((sec/100) % 10);
-	
-			if (sec < 10 )
-				lcd.digits[1] = 10;
-			else
-				lcd.digits[1] = (uint8_t)((sec/10) % 10);
-	
-			if ( sec == 0 )
-				lcd.digits[2] = 10;
-			else
-				lcd.digits[2] = (uint8_t)( sec%10 );
-	
-			lcd.bat = sec % 4;
-	
-			if ( sec % 10 == 0 ) {
-				lcd.bat_frame = 0;
-				lcd.window = 0;
-				lcd.thermometer = 0;
-				lcd.warning = 0;
-				lcd.percent = 0;
-				lcd.rel = 0;
-				lcd.comma = 0;
-				lcd.degrees = 0;
-			}
-	
-			if (sec % 10 == 1)
-				lcd.bat_frame = 1;
-	
-			if (sec % 10 == 2)
-				lcd.degrees = 1;
-	
-			if ( sec % 10 == 3)
-				lcd.rel = 1;
-	
-			if ( sec % 10 == 4)
-				lcd.percent = 1;
-	
-			if ( sec % 10 == 5)
-				lcd.window = 1;
-	
-			if ( sec % 10 == 6)
-				lcd.thermometer = 1;
-	
-			if ( sec % 10 == 7)
-				lcd.warning = 1;
-	
-			if (sec % 10 == 8)
-				lcd.comma = 1;
-	
-			#else
-			lcd.digits[0] = 1; lcd.digits[1] = 2; lcd.digits[2] = 3;
-			#endif
-	
-			lcd_update();
-			} else
 				lcd_off();
+			} else {
+				lcd_state = 1;
+				update_bat();
+				lcd_on();
+			}
 		}
+		if ( (sec % 8 == 0) && lcd_state ) {
+				sht_start();
+				update_bat();
+		}
+		// blink the LED for 10ms every wakeup
+		//if ( (sec%10) == 0) led_on(); _delay_ms(1); led_off();
+		if (lcd_state) {
+			if ( sec % 4 == 2 ) {
+				int16_t h = sht_get_hum();
+				lcd.digits[0] = (h / 1000) % 10;
+				lcd.digits[1] = (h /  100) % 10;
+				lcd.digits[2] = (h /   10) % 10;
+				lcd.comma = 1;
+				lcd.percent = 1;
+				lcd.rel = 1;
+				lcd.degrees = 0;
+				lcd_update();
+			} 
+			else if ( sec % 4 == 0 ) {
+				int16_t t = sht_get_tmp();
+				lcd.digits[0] = (t / 1000) % 10;
+				lcd.digits[1] = (t /  100) % 10;
+				lcd.digits[2] = (t /   10) % 10;
+				lcd.comma = 1;
+				lcd.degrees = 1;
+				lcd.rel = 0;
+				lcd.percent = 0;
+				lcd_update();
+			}
+		}
+	}
 }
 

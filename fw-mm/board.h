@@ -5,10 +5,24 @@
  *
  */
 
-#define F_MCP	F_CPU
+#define F_MCP			F_CPU
 
-#define	LED		PG4
-#define	SW1		PF3
+#define	LED				PG4
+#define	SW1				PF3
+
+#define SHT_SCL_PORT	PORTE
+#define SHT_SCL_PIN		PE6
+#define SHT_SCL_DDR		DDRE
+
+#define SHT_SDA_PORT	PORTE
+#define SHT_SDA_IN		PINE
+#define SHT_SDA_PIN		PE7
+#define SHT_SDA_DDR		DDRE
+#define SHT_INT_MASK	(1<<SHT_SDA_PIN)
+#define SHT_INT_BIT		(1<<PCIE0)
+#define SHT_INT_REG		PCMSK0
+#define SHT_INT_VECT	PCINT0_vect
+#define SHT_TEMP_V_COMP	SHT_3_5V
 
 #define led_on()		(PORTG &= ~(1<<LED))
 #define led_off()		(PORTG |= (1<<LED))
