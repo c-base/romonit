@@ -61,7 +61,7 @@ int main (void) {
 	led_on(); _delay_ms(100); led_off();
 	timer2_init();
 	sht_init();
-	update_bat();
+	bat_update();
 	sei();
 	lcd_init();
 	sht_start();
@@ -74,7 +74,7 @@ int main (void) {
 				lcd_off();
 			} else {
 				lcd_state = sec;
-				update_bat();
+				bat_update();
 				lcd_on();
 			}
 		}
@@ -87,7 +87,7 @@ int main (void) {
 		if (lcd_state) {
 			if (sec % 20 == 0) {
 				sht_start();
-				update_bat();
+				bat_update();
 			}
 			if ( sec % 4 == 2 ) {
 				int16_t h = sht_get_hum();
