@@ -19,6 +19,7 @@
 #include "timer2.h"
 #include "lcd.h"
 #include "button.h"
+#include "adc.h"
 #include "sht1x.h"
 
 void sleep(void) {
@@ -30,7 +31,7 @@ void sleep(void) {
 }
 
 int main (void) {
-	uint8_t lcd_state = 0;
+	uint32_t lcd_state = 1;
 
 	_delay_ms(1);			// wait some time for things to settle
 
@@ -60,7 +61,6 @@ int main (void) {
 	led_on(); _delay_ms(100); led_off();
 	timer2_init();
 	sht_init();
-	lcd_state = 1;
 	update_bat();
 	sei();
 	lcd_init();
@@ -73,18 +73,22 @@ int main (void) {
 				lcd_state = 0;
 				lcd_off();
 			} else {
-				lcd_state = 1;
+				lcd_state = sec;
 				update_bat();
 				lcd_on();
 			}
 		}
-		if ( (sec % 8 == 0) && lcd_state ) {
-				sht_start();
-				update_bat();
+		if ( (lcd_state + 900) < sec ) {
+			lcd_off();
+			lcd_state = 0;
 		}
 		// blink the LED for 10ms every wakeup
 		//if ( (sec%10) == 0) led_on(); _delay_ms(1); led_off();
 		if (lcd_state) {
+			if (sec % 8 == 0) {
+				sht_start();
+				update_bat();
+			}
 			if ( sec % 4 == 2 ) {
 				int16_t h = sht_get_hum();
 				lcd.digits[0] = (h / 1000) % 10;
