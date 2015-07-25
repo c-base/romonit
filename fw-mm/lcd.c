@@ -93,7 +93,7 @@ void lcd_seg(uint8_t seg) {
 
 #define SEG(x) (1<<(x))
 #define ALL    0x7F
-uint8_t digit_patterns[11] = {
+uint8_t digit_patterns[18] = {
     /* segments numbered left to right, top to bottom:
      * /-0-\
      * 1   2
@@ -111,7 +111,14 @@ uint8_t digit_patterns[11] = {
     [7] = SEG(0) + SEG(2) + SEG(5),
     [8] = ALL,
     [9] = ALL - SEG(4),
-    [10]= 0
+    [10]= ALL - SEG(6),
+    [11]= ALL - SEG(0) - SEG(2),
+    [12]= ALL - SEG(2) - SEG(3) - SEG(5),
+    [13]= ALL - SEG(0) - SEG(1),
+    [14]= ALL - SEG(2) - SEG(5),
+    [15]= ALL - SEG(2) - SEG(6), - SEG(6),
+    [16]= 0,
+	[17]= SEG(3),
 };
 #undef SEG
 #undef ALL
