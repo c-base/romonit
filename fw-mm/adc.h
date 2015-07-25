@@ -6,5 +6,5 @@
  */
 
 uint16_t adc_voltage(void);
-uint16_t update_bat(void);
+void bat_update(void);
 

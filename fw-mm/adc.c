@@ -53,7 +53,7 @@ uint16_t adc_voltage(void) {
 	return( (uint16_t)((110*1024L)/adc) );
 }
 
-void update_bat(void) {
+void bat_update(void) {
 	uint16_t voltage;
 
 	voltage = adc_voltage();
