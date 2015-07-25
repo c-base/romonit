@@ -113,16 +113,18 @@ int main (void) {
 						lcd.digits[1] = (t / 100) % 10;
 						lcd.digits[2] = (t /  10) % 10;
 						lcd.comma = 1;
-					} else if ( t > -1000 ) {
-						lcd.digits[0] = 17;
-						lcd.digits[1] = (t / 100) % 10;
-						lcd.digits[2] = (t /  10) % 10;
-						lcd.comma = 1;
 					} else {
 						lcd.digits[0] = 17;
-						lcd.digits[1] = (t / 1000) % 10;
-						lcd.digits[2] = (t / 100) % 10;
-						lcd.comma = 0;
+						t *= -1;
+					 	if ( t > 999 ) {
+							lcd.digits[1] = (t / 1000) % 10;
+							lcd.digits[2] = (t / 100) % 10;
+							lcd.comma = 0;
+						} else {
+							lcd.digits[1] = (t / 100) % 10;
+							lcd.digits[2] = (t /  10) % 10;
+							lcd.comma = 1;
+						}
 					}
 					lcd.degrees = 1;
 					lcd.rel = 0;
