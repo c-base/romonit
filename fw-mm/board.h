@@ -28,3 +28,5 @@
 #define led_off()		(PORTG |= (1<<LED))
 #define led_init()		(DDRG  |= (1<<LED))
 
+void sleep(void);
+

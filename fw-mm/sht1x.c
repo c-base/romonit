@@ -245,12 +245,7 @@ ISR(PCINT0_vect) {
 	//	sht_hum = SHT_UNAVAIL;
 	//}
 	// go to sleep again
-	#if 1
-	SMCR = (0<<SM2)|(1<<SM1)|(1<<SM0)|(1<<SE);
-	asm volatile ("sei");
-	asm volatile ("sleep");
-	asm volatile ("nop");
-	#endif
+	sleep();
 }
 
 int16_t sht_get_tmp(void) {
