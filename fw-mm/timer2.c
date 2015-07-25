@@ -14,7 +14,7 @@
 
 #include "board.h"
 
-volatile uint8_t sec;
+volatile uint32_t sec;
 
 void timer2_init(void) {
 
