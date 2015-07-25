@@ -91,9 +91,13 @@ int main (void) {
 				}
 				if ( sec % 4 == 2 ) {
 					int16_t h = sht_get_hum();
-					lcd.digits[0] = (h / 1000) % 10;
-					lcd.digits[1] = (h /  100) % 10;
-					lcd.digits[2] = (h /   10) % 10;
+					if ( h > 1000 ) 
+						lcd.digits[0] = (h / 1000) % 10;
+					else
+						lcd.digits[0] = 16;
+
+					lcd.digits[1] = (h / 100) % 10;
+					lcd.digits[2] = (h /  10) % 10;
 					lcd.comma = 1;
 					lcd.percent = 1;
 					lcd.rel = 1;
@@ -101,10 +105,25 @@ int main (void) {
 					lcd_update();
 				} else if ( sec % 4 == 0 ) {
 					int16_t t = sht_get_tmp();
-					lcd.digits[0] = (t / 1000) % 10;
-					lcd.digits[1] = (t /  100) % 10;
-					lcd.digits[2] = (t /   10) % 10;
-					lcd.comma = 1;
+					if ( t > 0 ) {
+						if ( t > 1000 )
+							lcd.digits[0] = (t / 1000) % 10;
+						else
+							lcd.digits[0] = 16;
+						lcd.digits[1] = (t / 100) % 10;
+						lcd.digits[2] = (t /  10) % 10;
+						lcd.comma = 1;
+					} else if ( t > -1000 ) {
+						lcd.digits[0] = 17;
+						lcd.digits[1] = (t / 100) % 10;
+						lcd.digits[2] = (t /  10) % 10;
+						lcd.comma = 1;
+					} else {
+						lcd.digits[0] = 17;
+						lcd.digits[1] = (t / 1000) % 10;
+						lcd.digits[2] = (t / 100) % 10;
+						lcd.comma = 0;
+					}
 					lcd.degrees = 1;
 					lcd.rel = 0;
 					lcd.percent = 0;
