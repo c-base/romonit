@@ -52,8 +52,6 @@ void lcd_init(void) {
 	// frame rate, will get adjusted after battery is measured
 	LCDFRR = (1<<LCDCD0);
 
-	lcd_on();
-
 	#if 1
 	// switch segments on
 	LCDDR0 = 0xff;
