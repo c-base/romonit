@@ -78,39 +78,39 @@ int main (void) {
 				lcd_on();
 			}
 		}
-		if ( (lcd_state + 900) < sec ) {
-			lcd_off();
-			lcd_state = 0;
-		}
 		// blink the LED for 10ms every wakeup
 		//if ( (sec%10) == 0) led_on(); _delay_ms(1); led_off();
 		if (lcd_state) {
-			if (sec % 20 == 0) {
-				sht_start();
-				bat_update();
-			}
-			if ( sec % 4 == 2 ) {
-				int16_t h = sht_get_hum();
-				lcd.digits[0] = (h / 1000) % 10;
-				lcd.digits[1] = (h /  100) % 10;
-				lcd.digits[2] = (h /   10) % 10;
-				lcd.comma = 1;
-				lcd.percent = 1;
-				lcd.rel = 1;
-				lcd.degrees = 0;
-				lcd_update();
-			} 
-			else if ( sec % 4 == 0 ) {
-				int16_t t = sht_get_tmp();
-				lcd.digits[0] = (t / 1000) % 10;
-				lcd.digits[1] = (t /  100) % 10;
-				lcd.digits[2] = (t /   10) % 10;
-				lcd.comma = 1;
-				lcd.degrees = 1;
-				lcd.rel = 0;
-				lcd.percent = 0;
-				lcd_update();
-			}
+			if ( (lcd_state + 900) < sec ) {
+				lcd_off();
+				lcd_state = 0;
+			} else {
+				if (sec % 20 == 0) {
+					sht_start();
+					bat_update();
+				}
+				if ( sec % 4 == 2 ) {
+					int16_t h = sht_get_hum();
+					lcd.digits[0] = (h / 1000) % 10;
+					lcd.digits[1] = (h /  100) % 10;
+					lcd.digits[2] = (h /   10) % 10;
+					lcd.comma = 1;
+					lcd.percent = 1;
+					lcd.rel = 1;
+					lcd.degrees = 0;
+					lcd_update();
+				} else if ( sec % 4 == 0 ) {
+					int16_t t = sht_get_tmp();
+					lcd.digits[0] = (t / 1000) % 10;
+					lcd.digits[1] = (t /  100) % 10;
+					lcd.digits[2] = (t /   10) % 10;
+					lcd.comma = 1;
+					lcd.degrees = 1;
+					lcd.rel = 0;
+					lcd.percent = 0;
+					lcd_update();
+				}
+			}	
 		}
 	}
 }
