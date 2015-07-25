@@ -85,7 +85,7 @@ int main (void) {
 		// blink the LED for 10ms every wakeup
 		//if ( (sec%10) == 0) led_on(); _delay_ms(1); led_off();
 		if (lcd_state) {
-			if (sec % 8 == 0) {
+			if (sec % 20 == 0) {
 				sht_start();
 				update_bat();
 			}
