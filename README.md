@@ -25,4 +25,9 @@ What works:
 - 32kHz timer
 - LED
 - Button
+- Battery gauge
+- Temperatur and humidity display
+
+Current consumtion is 10uA for the LCD, 5uA (average) for measuring humidity
+and temperature every 8s and about 2uA for processing on the AVR.
 
