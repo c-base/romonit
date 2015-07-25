@@ -1,3 +1,5 @@
+*.hex
+*.eep
 *.elf
 *.sym
 *.map
@@ -5,3 +7,4 @@
 *.lss
 *.lst
 *.o
+*.orig
