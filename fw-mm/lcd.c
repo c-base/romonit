@@ -46,10 +46,9 @@ void lcd_on(void) {
 
 void lcd_init(void) {
 
-	// clear LCD from powersave register
-	PRR &= ~(1<<PRLCD);
+	lcd_on();
 	// LCD Control and Status Register B
-	LCDCRB = (1<<LCDMUX0)|(1<<LCDPM2)|(1<<LCDPM0);
+	LCDCRB = (1<<LCDCS)|(1<<LCDMUX0)|(1<<LCDPM2)|(1<<LCDPM0);
 	// frame rate, will get adjusted after battery is measured
 	LCDFRR = (1<<LCDCD0);
 
