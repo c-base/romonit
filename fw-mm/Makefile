@@ -21,8 +21,10 @@ SRC = $(TARGET).c
 
 SRC += timer2.c \
 	lcd.c \
-	button.c
-#	sht15.c
+	button.c \
+	adc.c \
+	sht1x.c
+#	sht11.c
 #	fonts.c \
 #	timer1.c \
 #	timer.c \
