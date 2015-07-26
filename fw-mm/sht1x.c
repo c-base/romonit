@@ -244,8 +244,6 @@ ISR(PCINT0_vect) {
 	//	sht_tmp = SHT_UNAVAIL;
 	//	sht_hum = SHT_UNAVAIL;
 	//}
-	// go to sleep again
-	sleep();
 }
 
 int16_t sht_get_tmp(void) {
