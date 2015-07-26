@@ -30,6 +30,48 @@ void sleep(void) {
 	asm volatile ("nop");
 }
 
+void set_display(void) {
+	int16_t val;
+
+	val = sht_get_tmp();
+	if ( val > 0 ) {
+		if ( val > 1000 )
+			lcd[0].digits[0] = (val / 1000) % 10;
+		else
+			lcd[0].digits[0] = 16;
+		lcd[0].digits[1] = (val / 100) % 10;
+		lcd[0].digits[2] = (val /  10) % 10;
+		lcd[0].comma = 1;
+	} else {
+		lcd[0].digits[0] = 17;
+		val *= -1;
+	 	if ( val > 999 ) {
+			lcd[0].digits[1] = (val / 1000) % 10;
+			lcd[0].digits[2] = (val / 100) % 10;
+			lcd[0].comma = 0;
+		} else {
+			lcd[0].digits[1] = (val / 100) % 10;
+			lcd[0].digits[2] = (val /  10) % 10;
+			lcd[0].comma = 1;
+		}
+	}
+	lcd[0].degrees = 1;
+	lcd[0].rel = 0;
+	lcd[0].percent = 0;
+
+	val = sht_get_hum();
+	if ( val > 1000 ) 
+		lcd[1].digits[0] = (val / 1000) % 10;
+	else
+		lcd[1].digits[0] = 16;
+	lcd[1].digits[1] = (val / 100) % 10;
+	lcd[1].digits[2] = (val /  10) % 10;
+	lcd[1].comma = 1;
+	lcd[1].percent = 1;
+	lcd[1].rel = 1;
+	lcd[1].degrees = 0;
+}
+
 int main (void) {
 	uint32_t lcd_state = 1;
 
@@ -65,6 +107,8 @@ int main (void) {
 	sei();
 	lcd_init();
 	sht_start();
+	sleep();
+	set_display();
 
 	while (1) {
 		sleep();
@@ -88,51 +132,14 @@ int main (void) {
 				if (sec % 20 == 0) {
 					sht_start();
 					sleep();
-					// sleep again, as we wakeup ~200ms when the sht15 is finished
-					sleep();
 					bat_update();
+					set_display();
+					sleep();
 				}
 				if ( sec % 4 == 2 ) {
-					int16_t h = sht_get_hum();
-					if ( h > 1000 ) 
-						lcd.digits[0] = (h / 1000) % 10;
-					else
-						lcd.digits[0] = 16;
-
-					lcd.digits[1] = (h / 100) % 10;
-					lcd.digits[2] = (h /  10) % 10;
-					lcd.comma = 1;
-					lcd.percent = 1;
-					lcd.rel = 1;
-					lcd.degrees = 0;
-					lcd_update();
+					lcd_update(1);
 				} else if ( sec % 4 == 0 ) {
-					int16_t t = sht_get_tmp();
-					if ( t > 0 ) {
-						if ( t > 1000 )
-							lcd.digits[0] = (t / 1000) % 10;
-						else
-							lcd.digits[0] = 16;
-						lcd.digits[1] = (t / 100) % 10;
-						lcd.digits[2] = (t /  10) % 10;
-						lcd.comma = 1;
-					} else {
-						lcd.digits[0] = 17;
-						t *= -1;
-					 	if ( t > 999 ) {
-							lcd.digits[1] = (t / 1000) % 10;
-							lcd.digits[2] = (t / 100) % 10;
-							lcd.comma = 0;
-						} else {
-							lcd.digits[1] = (t / 100) % 10;
-							lcd.digits[2] = (t /  10) % 10;
-							lcd.comma = 1;
-						}
-					}
-					lcd.degrees = 1;
-					lcd.rel = 0;
-					lcd.percent = 0;
-					lcd_update();
+					lcd_update(0);
 				}
 			}	
 		}

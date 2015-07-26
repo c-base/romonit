@@ -28,7 +28,7 @@ typedef struct {
             bat_frame:1;/* 118 */
 } lcd_st;
 
-lcd_st lcd;
+lcd_st lcd[2];
 
 void lcd_off(void) {
 	// disable LCD
@@ -124,7 +124,7 @@ uint8_t digit_patterns[18] = {
 #undef ALL
 
 #define REG(v, s) ((!!(v))<<(s))
-void lcd_update(void) {
+void lcd_update(uint8_t plane) {
     union {
         struct {
             uint8_t s6:1,
@@ -136,35 +136,35 @@ void lcd_update(void) {
                     s0:1;
         };
         uint8_t pat;
-    } d0 = {.pat=digit_patterns[lcd.digits[0]]},
-      d1 = {.pat=digit_patterns[lcd.digits[1]]},
-      d2 = {.pat=digit_patterns[lcd.digits[2]]};
+    } d0 = {.pat=digit_patterns[lcd[plane].digits[0]]},
+      d1 = {.pat=digit_patterns[lcd[plane].digits[1]]},
+      d2 = {.pat=digit_patterns[lcd[plane].digits[2]]};
     LCDDR0 = REG(d0.s5, 0) | REG(d0.s6, 1) | REG(d0.s4, 2)
         | REG(d1.s5, 3) | REG(d1.s6, 4) | REG(d1.s4, 5)
         | REG(d2.s5, 6) | REG(d2.s6, 7);
 	LCDDR1 = REG(d2.s4, 7);
-    LCDDR2 = REG(lcd.degrees, 0)
-        | REG(lcd.bat>0, 1)
-        | REG(lcd.bat>1, 2)
-        | REG(lcd.percent, 3)
-        | REG(lcd.window, 4)
-        | REG(lcd.thermometer, 5)
-        | REG(lcd.warning, 6);
+    LCDDR2 = REG(lcd[plane].degrees, 0)
+        | REG(lcd[plane].bat>0, 1)
+        | REG(lcd[plane].bat>1, 2)
+        | REG(lcd[plane].percent, 3)
+        | REG(lcd[plane].window, 4)
+        | REG(lcd[plane].thermometer, 5)
+        | REG(lcd[plane].warning, 6);
     LCDDR5 = REG(d0.s2, 0) | REG(d0.s3, 1) | REG(d0.s1, 2)
         | REG(d1.s2, 3) | REG(d1.s3, 4) | REG(d1.s1, 5)
         | REG(d2.s2, 6) | REG(d2.s3, 7);
 	LCDDR6 = REG(d2.s1, 7);
     LCDDR7 = REG(d2.s0, 3) | REG(d1.s0, 5) | REG(d0.s0, 6)
-        | REG(lcd.rel, 0)
-        | REG(lcd.bat>2, 1)
-        | REG(lcd.bat_frame, 2)
-        | REG(lcd.comma, 4);
+        | REG(lcd[plane].rel, 0)
+        | REG(lcd[plane].bat>2, 1)
+        | REG(lcd[plane].bat_frame, 2)
+        | REG(lcd[plane].comma, 4);
 }
 #undef REG
 
-ISR(LCD_vect) {
-	asm volatile ("nop");
+//ISR(LCD_vect) {
+//	asm volatile ("nop");
 	//lcd_update();
-}
+//}
 
 

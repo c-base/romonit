@@ -59,17 +59,23 @@ void bat_update(void) {
 	voltage = adc_voltage();
 
 	if ( voltage > 360 ) {
-		lcd.bat = 3;
+		lcd[0].bat = 3;
+		lcd[1].bat = 3;
 		LCDFRR |=  (1<<LCDCD1);
 		LCDFRR &= ~(1<<LCDCD0);
 	} else if ( voltage > 330 ) {
-		lcd.bat = 2;
+		lcd[0].bat = 2;
+		lcd[1].bat = 2;
 		LCDFRR &= ~(1<<LCDCD1);
 		LCDFRR |=  (1<<LCDCD0);
 	} else if ( voltage > 300 ) {
-		lcd.bat = 1;
+		lcd[0].bat = 1;
+		lcd[1].bat = 1;
 		LCDFRR &= ~((1<<LCDCD1)|(1<<LCDCD0));
-	} else
-		lcd.bat = 0;
-	lcd.bat_frame = 1;
+	} else {
+		lcd[0].bat = 0;
+		lcd[1].bat = 0;
+	}
+	lcd[0].bat_frame = 1;
+	lcd[1].bat_frame = 1;
 }

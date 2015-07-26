@@ -18,10 +18,10 @@ typedef struct {
             bat_frame:1;/* 118 */
 } lcd_st;
 
-extern lcd_st lcd;
+extern lcd_st lcd[];
 
 void lcd_init(void);
-void lcd_update(void);
+void lcd_update(uint8_t);
 void lcd_off(void);
 void lcd_on(void);
 void lcd_seg(uint8_t);
