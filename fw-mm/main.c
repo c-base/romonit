@@ -87,6 +87,9 @@ int main (void) {
 			} else {
 				if (sec % 20 == 0) {
 					sht_start();
+					sleep();
+					// sleep again, as we wakeup ~200ms when the sht15 is finished
+					sleep();
 					bat_update();
 				}
 				if ( sec % 4 == 2 ) {
