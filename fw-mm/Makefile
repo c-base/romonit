@@ -127,7 +127,7 @@ AVRDUDE_PORT = usb 	# programmer connected to parallel port
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 #AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
 
-AVRDUDE_FLAGS = -p m169 -c $(AVRDUDE_PROGRAMMER) -b 4
+AVRDUDE_FLAGS = -p m169 -c $(AVRDUDE_PROGRAMMER) -b 16
 
 # Uncomment the following if you want avrdude's erase cycle counter.
 # Note that this counter needs to be initialized first using -Yn,

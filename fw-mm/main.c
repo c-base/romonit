@@ -73,7 +73,8 @@ void set_display(void) {
 }
 
 int main (void) {
-	uint32_t lcd_state = 1;
+	uint32_t lcd_state = 43200;
+	uint8_t	 button_down = 0;
 
 	_delay_ms(1);			// wait some time for things to settle
 
@@ -108,33 +109,48 @@ int main (void) {
 	lcd_init();
 	sht_start();
 	sleep();
+	_delay_ms(1000);
+	sht_start();
+	sleep();
+	_delay_ms(1000);
+	sht_start();
+	sleep();
 	set_display();
+	lcd_update(0);
 
 	while (1) {
 		sleep();
-		if ( button() ) {
-			if (lcd_state) {
-				lcd_state = 0;
-				lcd_off();
-			} else {
-				lcd_state = sec;
-				bat_update();
-				lcd_on();
+		if ( button()) {
+			if ( !button_down ) {
+				if (lcd_state) {
+					lcd_state = 0;
+					lcd_off();
+				} else {
+					bat_update();
+					lcd_state = sec + 43200;
+					lcd_on();
+					sht_start();
+					sleep();
+					set_display();
+				}
+				button_down = 1;
 			}
+		} else {
+			if ( button_down) 
+				button_down = 0;
 		}
 		// blink the LED for 10ms every wakeup
 		//if ( (sec%10) == 0) led_on(); _delay_ms(1); led_off();
 		if (lcd_state) {
-			if ( (lcd_state + 900) < sec ) {
+			if ( lcd_state < sec ) {
 				lcd_off();
 				lcd_state = 0;
 			} else {
-				if (sec % 20 == 0) {
+				if (sec % 60 == 0) {
+					bat_update();
 					sht_start();
 					sleep();
-					bat_update();
 					set_display();
-					sleep();
 				}
 				if ( sec % 4 == 2 ) {
 					lcd_update(1);
