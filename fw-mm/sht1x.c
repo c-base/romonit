@@ -48,6 +48,7 @@ volatile int16_t sht_hum=0,
 static void	scl_pulse(void)	{ scl_hi(); delay() ; scl_lo(); }
 
 static void start(void) {
+	// switch port modes
 	PORTE &= ~((1<<6)|(1<<7));
 	DDRE  |=  (1<<6);
 	DDRE  &= ~(1<<7);
@@ -237,6 +238,9 @@ ISR(PCINT0_vect) {
 		sht_hum_raw = v;
 		sht_hum = sht_humid();
 		sht_mode = IDLE;
+		// switch port to input and pullup on to minimize current
+		DDRE  &= ~( (1<<6) | (1<<7) );
+		PORTE |=  ( (1<<6) | (1<<7) );
 	}
 	//} else {
 	//	sht_tmp = SHT_UNAVAIL;
