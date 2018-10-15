@@ -49,8 +49,11 @@ void lcd_init(void) {
 	lcd_on();
 	// LCD Control and Status Register B
 	LCDCRB = (1<<LCDCS)|(1<<LCDMUX0)|(1<<LCDPM2)|(1<<LCDPM0);
+	// We need framerate / 1 at 2.6V and framerate / 5 at 3.6V
 	// frame rate, will get adjusted after battery is measured
-	LCDFRR = (1<<LCDCD0);
+	LCDFRR = ( 0<<LCDCD2 | 0<<LCDCD1 | 0<<LCDCD0 );
+	// Contrast control 300us
+	LCDCCR = ( 0<<LCDDC2 | 0<<LCDDC1 | 0<<LCDDC0);
 
 	#if 1
 	// switch segments on
