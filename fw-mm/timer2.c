@@ -26,7 +26,7 @@ void timer2_init(void) {
 	TCNT2 = 0;
 
 	// 32.768 kHz / 1024 => 8 sec per overflow
-	TCCR2A |= (1<<CS22)|(0<<CS21)|(1<<CS20);
+	TCCR2A |= (1<<CS22)|(1<<CS21)|(1<<CS20);
 	// 32.768 kHz / 128 => 1 sec per overflow
 	//TCCR2A |= (1<<CS22)|(0<<CS21)|(1<<CS20);
 
