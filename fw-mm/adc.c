@@ -46,6 +46,7 @@ uint16_t adc_voltage(void) {
 	adc = ADC;
 
 	// disable ADC
+	ADMUX = 0;
 	ADCSRA &= ~(1<<ADEN);
 	// enable powersaving for ADC
 	PRR |= (1<<PRADC);
@@ -58,20 +59,63 @@ void bat_update(void) {
 
 	voltage = adc_voltage();
 
+	// LCD contrast adjustment
+	#if 0
+	if ( voltage < 270 ) {
+		// 2.65V: 300us, fr/1 => 8.1uA
+		LCDFRR = ( 0<<LCDCD2 | 0<<LCDCD1 | 0<<LCDCD0 );
+		LCDCCR = ( 0<<LCDDC2 | 0<<LCDDC1 | 0<<LCDDC0 );
+	} else if ( voltage < 290 ) {
+		// 2.90V: 150us, fr/1 => 7.7uA
+		LCDFRR = ( 0<<LCDCD2 | 0<<LCDCD1 | 0<<LCDCD0 );
+		LCDCCR = ( 0<<LCDDC2 | 1<<LCDDC1 | 0<<LCDDC0 );
+	} else if ( voltage < 310 ) {
+		// 3.10V: 150us, fr/2 => 6.9uA
+		LCDFRR = ( 0<<LCDCD2 | 0<<LCDCD1 | 1<<LCDCD0 );
+		LCDCCR = ( 0<<LCDDC2 | 1<<LCDDC1 | 0<<LCDDC0 );
+	} else if ( voltage < 330 ) {
+		// 3.30V: 150us, fr/3 => 6.7uA
+		LCDFRR = ( 0<<LCDCD2 | 1<<LCDCD1 | 0<<LCDCD0 );
+		LCDCCR = ( 0<<LCDDC2 | 1<<LCDDC1 | 0<<LCDDC0 );
+	} else if ( voltage < 350 ) {
+		// 3.40V: 150us, fr/4 => 6.6uA
+		LCDFRR = ( 0<<LCDCD2 | 1<<LCDCD1 | 1<<LCDCD0 );
+		LCDCCR = ( 0<<LCDDC2 | 1<<LCDDC1 | 0<<LCDDC0 );
+	} else {
+		// 3.65V: 150us, fr/5 => 6.7uA
+		LCDFRR = ( 1<<LCDCD2 | 0<<LCDCD1 | 0<<LCDCD0 );
+		LCDCCR = ( 0<<LCDDC2 | 1<<LCDDC1 | 0<<LCDDC0 );
+	}
+	#else
+	if ( voltage < 310 ) {
+		// 2.75V: 300us, fr/1 => 7.6uA
+		// 3.00V: 300us, fr/1 => 7.9uA
+		LCDFRR = ( 0<<LCDCD2 | 0<<LCDCD1 | 0<<LCDCD0 );
+		LCDCCR = ( 0<<LCDDC2 | 0<<LCDDC1 | 0<<LCDDC0 );
+	} else if ( voltage < 330 ) {
+		// 3.20V: 300us, fr/2 => 6.9uA
+		LCDFRR = ( 0<<LCDCD2 | 0<<LCDCD1 | 1<<LCDCD0 );
+		LCDCCR = ( 0<<LCDDC2 | 0<<LCDDC1 | 0<<LCDDC0 );
+	} else if ( voltage < 350 ) {
+		// 3.40V: 300us, fr/3 => 6.5uA
+		LCDFRR = ( 0<<LCDCD2 | 1<<LCDCD1 | 0<<LCDCD0 );
+		LCDCCR = ( 0<<LCDDC2 | 0<<LCDDC1 | 0<<LCDDC0 );
+	} else {
+		// 3.65V: 300us, fr/4 => 6.3uA
+		LCDFRR = ( 0<<LCDCD2 | 1<<LCDCD1 | 1<<LCDCD0 );
+		LCDCCR = ( 0<<LCDDC2 | 0<<LCDDC1 | 0<<LCDDC0 );
+	}
+	#endif
+
 	if ( voltage > 355 ) {
 		lcd[0].bat = 3;
 		lcd[1].bat = 3;
-		LCDFRR |=  (1<<LCDCD1);
-		LCDFRR &= ~(1<<LCDCD0);
 	} else if ( voltage > 340 ) {
 		lcd[0].bat = 2;
 		lcd[1].bat = 2;
-		LCDFRR &= ~(1<<LCDCD1);
-		LCDFRR |=  (1<<LCDCD0);
 	} else if ( voltage > 300 ) {
 		lcd[0].bat = 1;
 		lcd[1].bat = 1;
-		LCDFRR &= ~((1<<LCDCD1)|(1<<LCDCD0));
 	} else {
 		lcd[0].bat = 0;
 		lcd[1].bat = 0;
