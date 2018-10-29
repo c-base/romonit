@@ -24,6 +24,8 @@
 
 #define sht_valid(v)	((v) > -32000)
 
+void sleep(void);
+
 typedef enum {
 	IDLE,
 	TEMP,
@@ -176,6 +178,8 @@ void sht_start(void) {
 	send(SHT_CMD_TEMP);
 	delay(); // this seems important for the interrupt to work
 	PCMSK0 |= (1<<7);
+	while ( sht_mode != IDLE )
+		sleep();
 }
 
 static int16_t result(void) {
