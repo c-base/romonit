@@ -11,17 +11,18 @@
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
 #include <avr/version.h>
+#include <util/delay.h>
 
 #include "board.h"
 
 uint8_t button(void) {
 	uint8_t ret;
 
-	// enable digital input only during button read to save power
-	DIDR0 &= ~(1<<SW1);
+	// make port input
+	DDRF  &= ~(1<<SW1);
 	// switch on pullup
 	PORTF |= (1<<SW1);
-	asm volatile ("nop");
+	_delay_ms(2);
 
 	if (PINF & (1<<SW1))
 		ret = 0;
@@ -30,8 +31,8 @@ uint8_t button(void) {
 
 	// turn off pullup again
 	PORTF &= ~(1<<SW1);
-	// turn off digital input
-	DIDR0 |= (1<<SW1);
+	// make port output
+	DDRF  |= (1<<SW1);
 
 	return(ret);
 }
