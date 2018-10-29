@@ -12,49 +12,151 @@
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
 #include <avr/version.h>
+#include <util/delay.h>
 
 #include "board.h"
 
+extern uint16_t voltage;
+
 typedef struct {
-    uint8_t digits[3], /* 0-9, 10->disabled */
-            warning:1,  /* 022 */
-            thermometer:1, /* 021 */
-            window:1,   /* 020 */
-            percent:1,  /* 019 */
-            degrees:1,  /* 016 */
-            comma:1,    /* 120 */
-            rel:1,      /* 116 */
-            bat:2, /* 0-3 */
-            bat_frame:1;/* 118 */
+    uint8_t  digits[3], /* 0-9, 10->disabled */
+             warning:1,  /* 022 */
+             thermometer:1, /* 021 */
+             window:1,   /* 020 */
+             percent:1,  /* 019 */
+             degrees:1,  /* 016 */
+             comma:1,    /* 120 */
+             rel:1,      /* 116 */
+             bat_frame:1,/* 118 */
+             bat:3;      /* 0-7 */
 } lcd_st;
 
 lcd_st lcd[2];
 
 void lcd_off(void) {
-	// disable LCD
-	LCDCRA = 0;
-	// shutoff LCD subsytem
+
+	// poweroff LCDCAP
+	DDRF  &= ~(0x02);
+	PORTF &= ~(0x02);
+	// clear interrupt flag
+	LCDCRA |= (1<<LCDIF);
+	while ( !(LCDCRA & (1<<LCDIF)) );
+	// blank display
+	LCDCRA |= (1<<LCDBL);
+	while ( !(LCDCRA & (1<<LCDIF)) );
+	// shutoff display
+	LCDCRA &= ~((1<<LCDEN)|(1<<LCDBL));
 	PRR |= (1<<PRLCD);
 }
 
 void lcd_on(void) {
-	// clear LCD from powersave register
 	PRR &= ~(1<<PRLCD);
-	// low power driving waveform
-	LCDCRA = (1<<LCDEN) | (1<<LCDAB) | (0<<LCDIE) | (1<<LCDBD) | (1<<LCDCCD);
+	LCDCRA |= (1<<LCDEN);
+	DDRF  |= 0x02;
+	PORTF |= 0x02;
+}
+
+void lcd_contrast(void) {
+
+	if ( voltage > 460) {
+		// 150us drive time, 2.6V
+		LCDCCR = (0<<LCDDC2)|(1<<LCDDC1)|(0<<LCDDC0)|(0<<LCDCC3)|(0<<LCDCC2)|(0<<LCDCC1)|(0<<LCDCC0);
+		// lowest framerate without flickering, clk: 256 Hz
+		LCDFRR = (1<<LCDPS1) | (0<<LCDPS0) | (0<<LCDCD2) | (0<<LCDCD1) | (0<<LCDCD0);
+		// 1/3 bias
+		LCDCRB &= ~(1<<LCD2B);
+		// lowpower waveform on
+		LCDCRA |= (1<<LCDAB);
+	} else if ( voltage > 420 ) {
+		// 150us drive time, 2.6V
+		LCDCCR = (0<<LCDDC2)|(0<<LCDDC1)|(0<<LCDDC0)|(0<<LCDCC3)|(0<<LCDCC2)|(0<<LCDCC1)|(0<<LCDCC0);
+		// lowest framerate without flickering, clk: 256 Hz
+		LCDFRR = (1<<LCDPS1) | (0<<LCDPS0) | (0<<LCDCD2) | (0<<LCDCD1) | (0<<LCDCD0);
+		// 1/2 bias
+		LCDCRB |= (1<<LCD2B);
+		// lowpower waveform on
+		LCDCRA |= (1<<LCDAB);
+	} else if ( voltage > 390 ) {
+		// 150us drive time, 2.6V
+		LCDCCR = (0<<LCDDC2)|(1<<LCDDC1)|(0<<LCDDC0)|(0<<LCDCC3)|(0<<LCDCC2)|(0<<LCDCC1)|(0<<LCDCC0);
+		// lowest framerate without flickering, clk: 256 Hz
+		LCDFRR = (1<<LCDPS1) | (0<<LCDPS0) | (0<<LCDCD2) | (0<<LCDCD1) | (0<<LCDCD0);
+		// 1/3 bias
+		LCDCRB &= ~(1<<LCD2B);
+		// lowpower waveform on
+		LCDCRA &= ~(1<<LCDAB);
+	} else if ( voltage > 360 ) { // 3.6 - 3.9 V
+		// 150us drive time, 2.6V
+		LCDCCR = (0<<LCDDC2)|(1<<LCDDC1)|(0<<LCDDC0)|(0<<LCDCC3)|(0<<LCDCC2)|(0<<LCDCC1)|(0<<LCDCC0);
+		// lowest framerate without flickering, clk: 256 Hz
+		LCDFRR = (1<<LCDPS1) | (0<<LCDPS0) | (0<<LCDCD2) | (0<<LCDCD1) | (0<<LCDCD0);
+		// 1/2 bias
+		LCDCRB |= (1<<LCD2B);
+		// lowpower waveform off
+		LCDCRA &= ~(1<<LCDAB);
+	} else if ( voltage > 320 ) { // 3.2 - 3.6 V
+		// 300us drive time, 2.6V
+		LCDCCR = (0<<LCDDC2)|(0<<LCDDC1)|(0<<LCDDC0)|(0<<LCDCC3)|(0<<LCDCC2)|(0<<LCDCC1)|(0<<LCDCC0);
+		// lowest framerate without flickering, clk: 256 Hz
+		LCDFRR = (1<<LCDPS1) | (0<<LCDPS0) | (0<<LCDCD2) | (0<<LCDCD1) | (0<<LCDCD0);
+		// 1/2 bias
+		LCDCRB |= (1<<LCD2B);
+		// lowpower waveform off
+		LCDCRA &= ~(1<<LCDAB);
+	} else if ( voltage > 290 ) { // 2.9V - 3.2V
+		// 300us drive time, 2.6V
+		LCDCCR = (0<<LCDDC2)|(0<<LCDDC1)|(0<<LCDDC0)|(0<<LCDCC3)|(0<<LCDCC2)|(0<<LCDCC1)|(0<<LCDCC0);
+		// increase framerate, clk: 512 Hz
+		LCDFRR = (0<<LCDPS1) | (1<<LCDPS0) | (0<<LCDCD2) | (0<<LCDCD1) | (0<<LCDCD0);
+		// 1/2 bias
+		LCDCRB |= (1<<LCD2B);
+		// lowpower waveform off
+		LCDCRA &= ~(1<<LCDAB);
+	} else if ( voltage > 270 ) { // 2.7V - 2.9V
+		// 300us drive time, 2.6V
+		LCDCCR = (0<<LCDDC2)|(0<<LCDDC1)|(0<<LCDDC0)|(0<<LCDCC3)|(0<<LCDCC2)|(0<<LCDCC1)|(0<<LCDCC0);
+		// increase framerate, clk: 1024 Hz
+		LCDFRR = (0<<LCDPS1) | (0<<LCDPS0) | (0<<LCDCD2) | (0<<LCDCD1) | (1<<LCDCD0);
+		// 1/2 bias
+		LCDCRB |= (1<<LCD2B);
+		// lowpower waveform off
+		LCDCRA &= ~(1<<LCDAB);
+	} else { // 0 - 2.7V
+		// below 2.6V we would need contrast control, using 2.8V works fine down to 2.2V supply
+		// but we would need to reinitialize the LCD, this is not implemented
+
+		// 300us drive time, 2.6V
+		LCDCCR = (1<<LCDDC2)|(0<<LCDDC1)|(0<<LCDDC0)|(0<<LCDCC3)|(0<<LCDCC2)|(0<<LCDCC1)|(0<<LCDCC0);
+		// increase framerate, clk: 2048 Hz
+		LCDFRR = (0<<LCDPS1) | (0<<LCDPS0) | (0<<LCDCD2) | (0<<LCDCD1) | (0<<LCDCD0);
+		// 1/2 bias
+		LCDCRB |= (1<<LCD2B);
+		// lowpower waveform off
+		LCDCRA &= ~(1<<LCDAB);
+	}
+
 }
 
 void lcd_init(void) {
 
-	lcd_on();
-	// LCD Control and Status Register B
-	LCDCRB = (1<<LCDCS)|(1<<LCDMUX0)|(1<<LCDPM2)|(1<<LCDPM0);
-	// We need framerate / 1 at 2.6V and framerate / 5 at 3.6V
-	// frame rate, will get adjusted after battery is measured
-	LCDFRR = ( 0<<LCDCD2 | 0<<LCDCD1 | 0<<LCDCD0 );
-	// Contrast control 300us
-	LCDCCR = ( 0<<LCDDC2 | 0<<LCDDC1 | 0<<LCDDC0);
+	// clear LCD from powersave register
+	PRR &= ~(1<<PRLCD);
 
+	// Contrast control 150us, 3.6V
+	LCDCCR = ( 0<<LCDDC2 | 1<<LCDDC1 | 0<<LCDDC0 | 1<<LCDCC3 | 0<<LCDCC2 | 0<<LCDCC1 | 0<<LCDCC0 );
+
+	// frame rate, will get adjusted after battery is measured
+	LCDFRR = ( 1<<LCDPS0 | 0<<LCDCD2 | 0<<LCDCD1 | 1<<LCDCD0 );
+
+	// LCD Control and Status Register B
+	LCDCRB = (1<<LCDCS)|(1<<LCD2B)|(1<<LCDMUX0)|(1<<LCDPM2)|(1<<LCDPM0);
+
+	// disable contrast control and buffer, low power driving waveform doesn't look good
+	LCDCRA = (1<<LCDEN)|(0<<LCDAB)|(1<<LCDIF)|(0<<LCDIE)|(1<<LCDBD)|(1<<LCDCCD);
+
+	// provide power to LCDCAP
+	DDRF  |= 0x02;
+	PORTF |= 0x02;
 	#if 1
 	// switch segments on
 	LCDDR0 = 0xff;
@@ -64,6 +166,7 @@ void lcd_init(void) {
 	LCDDR6 = 0x80;
 	LCDDR7 = 0x7f;
 	#endif
+
 }
 
 void lcd_seg(uint8_t seg) {
@@ -128,6 +231,10 @@ uint8_t digit_patterns[18] = {
 
 #define REG(v, s) ((!!(v))<<(s))
 void lcd_update(uint8_t plane) {
+
+	lcd_on();
+	lcd_contrast();
+
     union {
         struct {
             uint8_t s6:1,
@@ -147,8 +254,8 @@ void lcd_update(uint8_t plane) {
         | REG(d2.s5, 6) | REG(d2.s6, 7);
 	LCDDR1 = REG(d2.s4, 7);
     LCDDR2 = REG(lcd[plane].degrees, 0)
-        | REG(lcd[plane].bat>0, 1)
-        | REG(lcd[plane].bat>1, 2)
+        | REG(lcd[plane].bat & 0x01, 1)
+        | REG(lcd[plane].bat & 0x02, 2)
         | REG(lcd[plane].percent, 3)
         | REG(lcd[plane].window, 4)
         | REG(lcd[plane].thermometer, 5)
@@ -159,7 +266,7 @@ void lcd_update(uint8_t plane) {
 	LCDDR6 = REG(d2.s1, 7);
     LCDDR7 = REG(d2.s0, 3) | REG(d1.s0, 5) | REG(d0.s0, 6)
         | REG(lcd[plane].rel, 0)
-        | REG(lcd[plane].bat>2, 1)
+        | REG(lcd[plane].bat & 0x04, 1)
         | REG(lcd[plane].bat_frame, 2)
         | REG(lcd[plane].comma, 4);
 }
@@ -169,5 +276,4 @@ void lcd_update(uint8_t plane) {
 //	asm volatile ("nop");
 	//lcd_update();
 //}
-
 
