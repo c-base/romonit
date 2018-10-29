@@ -24,19 +24,6 @@ SRC += timer2.c \
 	button.c \
 	adc.c \
 	sht1x.c
-#	sht11.c
-#	fonts.c \
-#	timer1.c \
-#	timer.c \
-#	rtc.c \
-#	cmac.c \
-#	crypto.c \
-#	rfcom.c \
-#	keyboard.c \
-#	beep.c \
-#	sercom.c \
-#	crc.c \
-#	config.c
 
 # List Assembler source files here.
 # Make them always end in a capital .S.  Files ending in a lowercase .s
