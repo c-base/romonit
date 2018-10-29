@@ -24,9 +24,8 @@
 #define SHT_INT_VECT	PCINT0_vect
 #define SHT_TEMP_V_COMP	SHT_3_5V
 
-#define led_on()		(PORTG &= ~(1<<LED))
-#define led_off()		(PORTG |= (1<<LED))
-#define led_init()		(DDRG  |= (1<<LED))
+#define led_on()		do { DDRG |= (1<<LED); PORTG &= ~(1<<LED); } while (0)
+#define led_off()		do { PORTG |= (1<<LED); DDRG &= ~(1<<LED); } while (0)
 
 void sleep(void);
 
