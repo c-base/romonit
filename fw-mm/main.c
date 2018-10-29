@@ -73,12 +73,11 @@ void set_display(void) {
 }
 
 int main (void) {
-	uint32_t lcd_state = 43200;
-	uint32_t last = 0;
-	uint8_t	 button_down = 0;
+	uint8_t lcd_toggle = 0;
+	uint32_t last = 1;
 
 	// wait some time for things to settle
-	_delay_ms(1);
+	_delay_ms(10);
 
 	// disable watchdog
 	WDTCR |= (1<<WDCE) | (1<<WDE);
@@ -93,8 +92,8 @@ int main (void) {
 
 	// disable digital buffers on analog comparator
 	DIDR1 = 0x03;
-	// disable digital buffers on adc
-	DIDR0 = 0xff;
+	// disable digital buffers on adc except PF3 (for button)
+	DIDR0 = 0xf7;
 
 	// switch on pullups according to data sheet
 	// PORTA (LCD)
@@ -109,15 +108,15 @@ int main (void) {
 	PORTA=0xff;
 
 	// PORTB (SPI, OCxx)
-	// 0: SS
-	// 1: SCK
-	// 2: MOSI
-	// 3: MISO
+	// 0: SS   (to AT45DB041D)
+	// 1: SCK  (to AT45DB041D)
+	// 2: MOSI (to AT45DB041D)
+	// 3: MISO (to AT45DB041D)
 	// 4: OC0A (8 uA if pullup on)
 	// 5: OC1A (8 uA if pullup on)
 	// 6: OC1B (8 uA if pullup on)
 	// 7: OC2A (8 uA if pullup on)
-	PORTB=0x06;
+	PORTB=0x07;
 
 	// PORTC (LCD)
 	// 0: SEG12 unused
@@ -154,88 +153,69 @@ int main (void) {
 
 	// PORTF (0-7, ADC, JTAG)
 	// 0: ADC0 to shrouded header
-	// 1: ADC1 somehow related to LCD, pullup needs to be on (as output or as pullup)
-	// 2: ADC2 somehow related to SW1 (8uA when pressed and PF3 is high)
+	// 1: ADC1 connected to LCDCAP, needs to be on (as output or as pullup)
+	// 2: ADC2 somehow related to SW1 (8uA when pressed and PF2 is high)
 	// 3: ADC3 to button SW1 ( 100uA when pressed and pullup is on)
 	// 4: ADC4 TCK to edge connector
 	// 5: ADC5 TMS to edge connector
 	// 6: ADC6 TDO to edge connector
 	// 7: ADC7 TDI to edge connector
-	PORTF=0xf3;
-	DDRF |= 2;
+	PORTF=0xf9;
 
 	// PORTG (0-5)
 	// 0: SEG14 unused
 	// 1: SEG13 unused
 	// 2: SEG4  unused
 	// 3: SEG24 unused
-	// 4: SEG23 unused
+	// 4: SEG23 LED
 	// 5: RESET
 	PORTG=0x3f;
 
 	// power reduction mode for timer1, SPI, UART and ADC
-	PRR = (1<<PRLCD)|(1<<PRTIM1)|(1<<PRSPI)|(1<<PRUSART0)|(1<<PRADC);
+	PRR = (0<<PRLCD)|(1<<PRTIM1)|(1<<PRSPI)|(1<<PRUSART0)|(1<<PRADC);
 
-	//led_init();
 	//led_on(); _delay_ms(100); led_off();
-	timer2_init();
-	sht_init();
-	bat_update();
-	sei();
 	lcd_init();
-	sht_start();
-	last = sec;
-	while ( last == sec )
+	timer2_init();
+	sei();
+	if ( button() ) {
+		lcd_toggle = 1;
 		sleep();
+	}
+	sht_init();
+	// the first measurement is invalid
 	sht_start();
-	last = sec;
-		while ( last == sec )
-		sleep();
+	sht_start();
+	bat_update();
 	set_display();
 	lcd_update(0);
 
 	while (1) {
-		sleep();
-		#if 0
-		if ( button()) {
-			if ( !button_down ) {
-				if (lcd_state) {
-					lcd_state = 0;
-					lcd_off();
-				} else {
-					bat_update();
-					lcd_state = sec + 43200;
-					lcd_on();
-					sht_start();
-					sleep();
-					set_display();
-				}
-				button_down = 1;
-			}
-		} else {
-			if ( button_down) 
-				button_down = 0;
-		}
-		#else
-			lcd_state = sec + 43200; /// hack always on
-		#endif
 		// blink the LED for 10ms every wakeup
-		//if ( (sec%10) == 0) led_on(); _delay_ms(10); led_off();
-		#if 1
+		//led_on(); _delay_ms(10); led_off();
 		if (last != sec) {
-				last = sec;
-				//bat_update();
-				if (sec % 8 == 0) {
-					bat_update();
-					sht_start();
-					sleep();
-					set_display();
-				}
+			last = sec;
+
+			if (sec % 8 == 0) {
+				bat_update();
+				sht_start();
+				set_display();
+			}
+
+			if ( lcd_toggle ) {
+				if ( sec % 4 == 0 )
+					lcd_update(0);
+				else if ( sec % 4 == 2 )
+					lcd_update(1);
+				else
+					lcd_off();
+			} else {
 				if ( sec % 2 == 1 )
 					lcd_update(1);
 				else
 					lcd_update(0);
+			}
 		}
-		#endif
+		sleep();
 	}
 }
